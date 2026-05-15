@@ -6,9 +6,11 @@ const ctx = canvas.getContext('2d');
 
 // --- KONFIGURATION ---
 const WORDS = ["Ego", "Geld", "Eifersucht", "Neid", "Stress", "Gier"];
-const BUBBLE_COUNT = 30;
-// Ab welcher Gesichtsgröße (in % des Bildschirms) sollen Blasen platzen/verschwinden?
-const PROXIMITY_THRESHOLD = 0.04; // 4% der Bildfläche
+const BUBBLE_COUNT = 300;
+// Ab welcher Gesichtsgröße (in % des Bildschirms) sollen Blasen gedrückt werden?
+const PROXIMITY_THRESHOLD = 0.02; // 2% der Bildfläche
+// Wie stark sollen die Blasen nach außen gedrückt werden? (Pixel)
+const PUSH_FORCE = 1500;
 // ---------------------
 
 let faceDetector;
@@ -23,66 +25,105 @@ function resizeCanvas() {
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
 
-// --- SEIFENBLASEN KLASSE ---
+// --- SEIFENBLASEN KLASSE (Mit Push-Physik) ---
 class Bubble {
   constructor() {
+    this.naturalX = 0;
+    this.naturalY = 0;
+    this.pushedX = 0;
+    this.pushedY = 0;
+    this.currentPushOffset = 0;
+
     this.reset();
-    this.y = Math.random() * canvas.height; // Beim Start zufällig verteilen
+    // Beim Start zufällig verteilen
+    this.naturalY = Math.random() * canvas.height;
+    this.pushedY = this.naturalY;
   }
 
   reset() {
     this.radius = Math.random() * 40 + 30;
-    this.x = Math.random() * canvas.width;
-    this.y = canvas.height + this.radius; // Starte unten
+    this.naturalX = Math.random() * canvas.width;
+    this.naturalY = canvas.height + this.radius; // Starte unten
     this.speed = Math.random() * 1.5 + 0.5;
     this.wobble = Math.random() * Math.PI * 2;
     this.word = WORDS[Math.floor(Math.random() * WORDS.length)];
-    this.opacity = 1.0;
+
+    this.pushedX = this.naturalX;
+    this.pushedY = this.naturalY;
+    // Wir belassen currentPushOffset unangetastet für fließende Übergänge beim Reset
+  }
+
+  // Hilfsfunktion für weiche Übergänge
+  static lerp(start, end, amt) {
+    return (1 - amt) * start + amt * end;
   }
 
   update(proximity) {
-    // Bewegung nach oben mit leichtem Schwanken
-    this.y -= this.speed;
-    this.x += Math.sin(this.wobble) * 0.5;
+    // 1. Normale, natürliche Bewegung nach oben
+    this.naturalY -= this.speed;
+    this.naturalX += Math.sin(this.wobble) * 0.5;
     this.wobble += 0.02;
 
-    // Logik für Nähe: Wenn Person nah ist, verblasst die Blase
-    if (proximity > PROXIMITY_THRESHOLD) {
-      this.opacity -= 0.05; // Schnelles Verblassen
+    // 2. Richtung berechnen (Von der Mitte weg)
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+
+    let vectorX = this.naturalX - centerX;
+    let vectorY = this.naturalY - centerY;
+    const distance = Math.sqrt(vectorX * vectorX + vectorY * vectorY);
+
+    // Richtungsvektor normalisieren
+    let dx = 0, dy = 0;
+    if (distance > 1) {
+      dx = vectorX / distance;
+      dy = vectorY / distance;
     } else {
-      this.opacity += 0.01; // Langsames Zurückkommen
+      dy = -1; // Fallback, falls genau in der Mitte
     }
 
-    // Grenzen der Deckkraft (0 bis 1)
-    this.opacity = Math.max(0, Math.min(1, this.opacity));
+    // 3. Push-Ziel berechnen
+    let targetPushOffset = 0;
+    if (proximity > PROXIMITY_THRESHOLD) {
+      // Je näher die Person (über dem Schwellenwert), desto stärker der Druck
+      // Wir multiplizieren mit 10, um die kleinen Proximity-Werte der Gesichtserkennung nutzbar zu machen
+      let intensity = (proximity - PROXIMITY_THRESHOLD) * 10;
+      targetPushOffset = PUSH_FORCE * Math.min(intensity, 1.0);
+    }
+
+    // 4. Sanft interpolieren (Damit sie nicht springen, sondern sliden)
+    this.currentPushOffset = Bubble.lerp(this.currentPushOffset, targetPushOffset, 0.05);
+
+    // 5. Tatsächliche Zeichen-Position berechnen
+    this.pushedX = this.naturalX + (dx * this.currentPushOffset);
+    this.pushedY = this.naturalY + (dy * this.currentPushOffset);
 
     // Wenn Blase oben rausfliegt, unten neu starten
-    if (this.y < -this.radius && this.opacity > 0) {
+    if (this.naturalY < -this.radius) {
       this.reset();
     }
   }
 
   draw(ctx) {
-    if (this.opacity <= 0) return;
-
     ctx.save();
-    ctx.globalAlpha = this.opacity;
 
-    // Zeichne Seifenblase (simplifizierte Version)
+    // Die Blasen verblassen nicht mehr, sie bleiben konstant sichtbar
+    ctx.globalAlpha = 1.0;
+
+    // Zeichne Seifenblase an der GEPUSHTEN Position
     ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+    ctx.arc(this.pushedX, this.pushedY, this.radius, 0, Math.PI * 2);
     ctx.fillStyle = "rgba(255, 255, 255, 0.1)"; // Halbtransparente Füllung
     ctx.fill();
     ctx.lineWidth = 2;
     ctx.strokeStyle = "rgba(255, 255, 255, 0.5)"; // Hellerer Rand
     ctx.stroke();
 
-    // Zeichne Text (Die "negativen" Eigenschaften)
+    // Zeichne Text
     ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
     ctx.font = `${this.radius * 0.4}px Arial`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText(this.word, this.x, this.y);
+    ctx.fillText(this.word, this.pushedX, this.pushedY);
 
     ctx.restore();
   }
@@ -136,9 +177,10 @@ async function renderLoop() {
   ctx.drawImage(video, -x - (video.videoWidth * scale), y, video.videoWidth * scale, video.videoHeight * scale);
   ctx.restore();
 
-  // Milchglas-Filter (Optional: Nur stark, wenn keine Person nah ist)
-  if (currentProximity < PROXIMITY_THRESHOLD) {
-    ctx.fillStyle = "rgba(0, 0, 0, 0.4)"; // Dunkelt den Spiegel ab, rückt Blasen in Fokus
+  // Milchglas-Filter (Wird schwächer, je näher die Person kommt)
+  let blurOpacity = Math.max(0, 0.4 - (currentProximity * 5));
+  if (blurOpacity > 0.01) {
+    ctx.fillStyle = `rgba(0, 0, 0, ${blurOpacity})`;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
 
