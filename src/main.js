@@ -127,9 +127,7 @@ class Bubble {
 
     ctx.save();
 
-    ctx.globalAlpha = this.currentOpacity * 0.85;
-
-    // Farbverlauf für den Rand erstellen (diagonal über die Blase)
+    // Farbverlauf erstellen (diagonal über die Blase)
     const gradient = ctx.createLinearGradient(
       this.pushedX - this.radius, this.pushedY - this.radius,
       this.pushedX + this.radius, this.pushedY + this.radius
@@ -137,30 +135,35 @@ class Bubble {
     gradient.addColorStop(0, this.colorPair[0]);
     gradient.addColorStop(1, this.colorPair[1]);
 
-    // Zeichne Seifenblase
+    // --- 1. FÜLLUNG (Transparent) ---
     ctx.beginPath();
     ctx.arc(this.pushedX, this.pushedY, this.radius, 0, Math.PI * 2);
 
-    // Leicht milchige, fast transparente Füllung (wie bei echten Blasen)
+    // Deckkraft runtersetzen für die milchige, transparente Füllung (hier 40%)
+    ctx.globalAlpha = this.currentOpacity * 0.4;
     ctx.fillStyle = gradient;
     ctx.fill();
 
-    // Bunter Rand mit dem erstellten Gradienten
-    ctx.lineWidth = 2; // Etwas dicker für bessere Sichtbarkeit der Farben
+    // --- 2. RÄNDER & GLANZ (Sichtbarer) ---
+    // Deckkraft wieder hochsetzen für klare Ränder (hier 90%)
+    ctx.globalAlpha = this.currentOpacity * 0.9;
+
+    // Äußerer Rand
+    ctx.lineWidth = 2;
     ctx.strokeStyle = "rgba(255, 255, 255, 0.6)";
     ctx.stroke();
 
-    // Zusätzlicher weißer "Glanz"-Effekt (optional, für mehr Plastizität)
+    // Zusätzlicher weißer "Glanz"-Effekt
     ctx.beginPath();
     ctx.arc(this.pushedX, this.pushedY, this.radius - 2, 0, Math.PI * 2);
     ctx.lineWidth = 1;
     ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
     ctx.stroke();
 
-    // Zeichne Text
-    ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
+    // --- 3. TEXT (Gut lesbar) ---
+    ctx.shadowColor = "rgba(0, 0, 0, 0.9)";
     ctx.shadowBlur = 4;
-    ctx.fillStyle = "#FFFFFF";
+    ctx.fillStyle = "#ffffff";
     ctx.font = `bold ${this.radius * 0.35}px Arial`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
