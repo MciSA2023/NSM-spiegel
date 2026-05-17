@@ -7,10 +7,24 @@ const ctx = canvas.getContext('2d');
 // --- KONFIGURATION ---
 const WORDS = ["Ego", "Geld", "Eifersucht", "Neid", "Stress", "Gier"];
 const BUBBLE_COUNT = 300;
-// Ab welcher Gesichtsgröße (in % des Bildschirms) sollen Blasen gedrückt werden?
+// Ab welcher Gesichtsgröße (in % des Bildschirms) sollen Blasen reagieren?
 const PROXIMITY_THRESHOLD = 0.02; // 2% der Bildfläche
 // Wie stark sollen die Blasen nach außen gedrückt werden? (Pixel)
 const PUSH_FORCE = 1500;
+
+// --- FARBVERLÄUFE (Gradients) ---
+const GRADIENTS = [
+  ['#FF5F6D', '#FFC371'], // Pink zu Orange
+  ['#36D1DC', '#5B86E5'], // Cyan zu Blau
+  ['#FF4B2B', '#FF416C'], // Rot zu Magenta
+  ['#11998e', '#38ef7d'], // Dunkelgrün zu Hellgrün
+  ['#8E2DE2', '#4A00E0'], // Violett zu Dunkelblau
+  ['#FDC830', '#F37335'], // Gelb zu Orange
+  ['#00C9FF', '#92FE9D'], // Hellblau zu Mintgrün
+  ['#fc4a1a', '#f7b733'], // Kräftiges Rot zu Gelb
+  ['#DA22FF', '#9733EE'], // Neon Pink zu Lila
+  ['#4CB8C4', '#3CD3AD']  // Türkis zu Aqua
+];
 // ---------------------
 
 let faceDetector;
@@ -25,7 +39,7 @@ function resizeCanvas() {
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
 
-// --- SEIFENBLASEN KLASSE (Mit Push-Physik) ---
+// --- SEIFENBLASEN KLASSE ---
 class Bubble {
   constructor() {
     this.naturalX = 0;
@@ -33,6 +47,7 @@ class Bubble {
     this.pushedX = 0;
     this.pushedY = 0;
     this.currentPushOffset = 0;
+    this.currentOpacity = 1.0;
 
     this.reset();
     // Beim Start zufällig verteilen
@@ -48,9 +63,11 @@ class Bubble {
     this.wobble = Math.random() * Math.PI * 2;
     this.word = WORDS[Math.floor(Math.random() * WORDS.length)];
 
+    // Weise dieser Blase einen zufälligen Farbverlauf zu
+    this.colorPair = GRADIENTS[Math.floor(Math.random() * GRADIENTS.length)];
+
     this.pushedX = this.naturalX;
     this.pushedY = this.naturalY;
-    // Wir belassen currentPushOffset unangetastet für fließende Übergänge beim Reset
   }
 
   // Hilfsfunktion für weiche Übergänge
@@ -81,17 +98,19 @@ class Bubble {
       dy = -1; // Fallback, falls genau in der Mitte
     }
 
-    // 3. Push-Ziel berechnen
+    // 3. Push-Ziel und Transparenz berechnen
     let targetPushOffset = 0;
+    let targetOpacity = 1.0;
+
     if (proximity > PROXIMITY_THRESHOLD) {
-      // Je näher die Person (über dem Schwellenwert), desto stärker der Druck
-      // Wir multiplizieren mit 10, um die kleinen Proximity-Werte der Gesichtserkennung nutzbar zu machen
       let intensity = (proximity - PROXIMITY_THRESHOLD) * 10;
       targetPushOffset = PUSH_FORCE * Math.min(intensity, 1.0);
+      targetOpacity = Math.max(0, 1.0 - (intensity * 1.5));
     }
 
-    // 4. Sanft interpolieren (Damit sie nicht springen, sondern sliden)
+    // 4. Sanft interpolieren (Sliden und sanftes Faden)
     this.currentPushOffset = Bubble.lerp(this.currentPushOffset, targetPushOffset, 0.05);
+    this.currentOpacity = Bubble.lerp(this.currentOpacity, targetOpacity, 0.05);
 
     // 5. Tatsächliche Zeichen-Position berechnen
     this.pushedX = this.naturalX + (dx * this.currentPushOffset);
@@ -104,23 +123,45 @@ class Bubble {
   }
 
   draw(ctx) {
+    if (this.currentOpacity <= 0.01) return;
+
     ctx.save();
 
-    // Die Blasen verblassen nicht mehr, sie bleiben konstant sichtbar
-    ctx.globalAlpha = 1.0;
+    ctx.globalAlpha = this.currentOpacity * 0.85;
 
-    // Zeichne Seifenblase an der GEPUSHTEN Position
+    // Farbverlauf für den Rand erstellen (diagonal über die Blase)
+    const gradient = ctx.createLinearGradient(
+      this.pushedX - this.radius, this.pushedY - this.radius,
+      this.pushedX + this.radius, this.pushedY + this.radius
+    );
+    gradient.addColorStop(0, this.colorPair[0]);
+    gradient.addColorStop(1, this.colorPair[1]);
+
+    // Zeichne Seifenblase
     ctx.beginPath();
     ctx.arc(this.pushedX, this.pushedY, this.radius, 0, Math.PI * 2);
-    ctx.fillStyle = "rgba(255, 255, 255, 0.1)"; // Halbtransparente Füllung
+
+    // Leicht milchige, fast transparente Füllung (wie bei echten Blasen)
+    ctx.fillStyle = gradient;
     ctx.fill();
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.5)"; // Hellerer Rand
+
+    // Bunter Rand mit dem erstellten Gradienten
+    ctx.lineWidth = 2; // Etwas dicker für bessere Sichtbarkeit der Farben
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.6)";
+    ctx.stroke();
+
+    // Zusätzlicher weißer "Glanz"-Effekt (optional, für mehr Plastizität)
+    ctx.beginPath();
+    ctx.arc(this.pushedX, this.pushedY, this.radius - 2, 0, Math.PI * 2);
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
     ctx.stroke();
 
     // Zeichne Text
-    ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
-    ctx.font = `${this.radius * 0.4}px Arial`;
+    ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
+    ctx.shadowBlur = 4;
+    ctx.fillStyle = "#FFFFFF";
+    ctx.font = `bold ${this.radius * 0.35}px Arial`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText(this.word, this.pushedX, this.pushedY);
@@ -133,7 +174,6 @@ const bubbles = Array.from({ length: BUBBLE_COUNT }, () => new Bubble());
 
 // --- KI & KAMERA INITIALISIEREN ---
 async function init() {
-  // 1. MediaPipe Modell laden
   const vision = await FilesetResolver.forVisionTasks(
     "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm"
   );
@@ -145,15 +185,17 @@ async function init() {
     runningMode: "VIDEO"
   });
 
-  // 2. Webcam starten
   try {
     const stream = await navigator.mediaDevices.getUserMedia({
-      video: { width: 1920, height: 1080, facingMode: "user" }
+      video: {
+        width: { ideal: 1080 },
+        height: { ideal: 1920 },
+        facingMode: "user"
+      }
     });
     video.srcObject = stream;
     video.play();
 
-    // Starte den Render-Loop, sobald das Video läuft
     video.onloadeddata = () => {
       renderLoop();
     };
@@ -163,55 +205,45 @@ async function init() {
   }
 }
 
-// --- HAUPTSCHLEIFE (Läuft 60x pro Sekunde) ---
+// --- HAUPTSCHLEIFE ---
 async function renderLoop() {
-  // 1. Video horizontal spiegeln und auf Canvas zeichnen
   ctx.save();
-  ctx.scale(-1, 1); // Flip X-Achse
-  // Das Bild wird zentriert gezeichnet (wichtig für Kiosk-Monitore, die nicht 16:9 sind)
+  ctx.scale(-1, 1);
   const scale = Math.max(canvas.width / video.videoWidth, canvas.height / video.videoHeight);
   const x = (canvas.width / 2) - (video.videoWidth / 2) * scale;
   const y = (canvas.height / 2) - (video.videoHeight / 2) * scale;
 
-  // Wegen dem Scale(-1) müssen wir die X-Koordinate beim Zeichnen anpassen
   ctx.drawImage(video, -x - (video.videoWidth * scale), y, video.videoWidth * scale, video.videoHeight * scale);
   ctx.restore();
 
-  // Milchglas-Filter (Wird schwächer, je näher die Person kommt)
+  // Milchglas-Filter 
   let blurOpacity = Math.max(0, 0.4 - (currentProximity * 5));
   if (blurOpacity > 0.01) {
     ctx.fillStyle = `rgba(0, 0, 0, ${blurOpacity})`;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
 
-  // 2. Gesichtserkennung durchführen
+  // Gesichtserkennung durchführen
   if (video.currentTime !== lastVideoTime && faceDetector) {
     lastVideoTime = video.currentTime;
     const detections = faceDetector.detectForVideo(video, performance.now()).detections;
 
     if (detections.length > 0) {
-      // Wir nehmen das erste erkannte Gesicht
       const face = detections[0].boundingBox;
-      // Berechne den Flächenanteil des Gesichts im Verhältnis zum Videobild
       const faceArea = (face.width * face.height) / (video.videoWidth * video.videoHeight);
-
-      // Glätte den Wert etwas, damit es nicht so stark flackert
       currentProximity = currentProximity * 0.8 + faceArea * 0.2;
     } else {
-      // Niemand im Bild
-      currentProximity = currentProximity * 0.9; // Langsam zurücksetzen
+      currentProximity = currentProximity * 0.9;
     }
   }
 
-  // 3. Seifenblasen updaten und zeichnen
+  // Seifenblasen updaten und zeichnen
   bubbles.forEach(bubble => {
     bubble.update(currentProximity);
     bubble.draw(ctx);
   });
 
-  // Nächster Frame
   requestAnimationFrame(renderLoop);
 }
 
-// Startschuss
 init();
