@@ -5,7 +5,7 @@ const canvas = document.getElementById('output_canvas');
 const ctx = canvas.getContext('2d');
 
 // --- KONFIGURATION ---
-const WORDS = ["Ego", "Geld", "Eifersucht", "Neid", "Stress", "Gier"];
+const WORDS = ["EGO", "GELD", "EIFERSUCH", "NEID", "STRESS", "GIER", "HASS", "LÜGEN", "FAULHEIT", "ARROGANZ"];
 const BUBBLE_COUNT = 300;
 // Ab welcher Gesichtsgröße (in % des Bildschirms) sollen Blasen reagieren?
 const PROXIMITY_THRESHOLD = 0.02; // 2% der Bildfläche
