@@ -13,14 +13,14 @@ export const PREDEFINED_WORDS = [
 export const CONFIG = {
   // ── Blasen ──────────────────────────────────────────────
   BUBBLE_COUNT: 300,
-  RADIUS_MIN: 30,
-  RADIUS_MAX: 70,
-  SPEED_MULT: 2.0,   // Multiplikator auf Basis-Speed
+  RADIUS_MIN: 10,
+  RADIUS_MAX: 100,
+  SPEED_MULT: 1.5,   // Multiplikator auf Basis-Speed
   WOBBLE_AMP: 0.5,   // Amplitude der seitlichen Taumelbewegung
 
   // ── Gesichtserkennung / Nähe ─────────────────────────────
   PROXIMITY_THRESHOLD: 0.02, // Gesichtsfläche in % des Frames → Reaktion
-  PUSH_FORCE: 1500, // Pixel, die Blasen nach außen gedrückt werden
+  PUSH_FORCE: 500, // Pixel, die Blasen nach außen gedrückt werden
   LERP_SPEED: 0.05, // Interpolationsgeschwindigkeit (0.01 = träge, 0.3 = schnell)
   FADE_INTENSITY: 1.5,  // Wie schnell Blasen bei Nähe ausblenden
 
