@@ -11,7 +11,7 @@ import { CONFIG, DEFAULTS, GRADIENT_SETS, PREDEFINED_WORDS } from "./config.js";
 // ── Tiny EventBus ─────────────────────────────────────────────────
 class EventBus {
   constructor() { this._listeners = {}; }
-  on(event, fn)   { (this._listeners[event] ??= []).push(fn); }
+  on(event, fn) { (this._listeners[event] ??= []).push(fn); }
   emit(event, data) { (this._listeners[event] ?? []).forEach(fn => fn(data)); }
 }
 
@@ -231,6 +231,23 @@ function injectCSS() {
       z-index: 900;
     }
 
+    /* Panel und alle Kinder bekommen ihren Cursor zurück –
+       body hat cursor:none für die Installation, das Panel nicht */
+    #sp-panel, #sp-panel * {
+      cursor: default;
+    }
+    #sp-panel input[type=range],
+    #sp-panel .sp-toggle,
+    #sp-panel .sp-preset,
+    #sp-panel .sp-btn,
+    #sp-panel #sp-close {
+      cursor: pointer;
+    }
+    #sp-panel textarea,
+    #sp-panel input[type=text] {
+      cursor: text;
+    }
+
     #sp-hint {
       position: fixed; top: 12px; right: 12px;
       width: 28px; height: 28px;
@@ -441,9 +458,9 @@ function injectCSS() {
 //  Panel-Logik
 // ═══════════════════════════════════════════════════════════════════
 function bindPanel() {
-  const panel   = document.getElementById("sp-panel");
+  const panel = document.getElementById("sp-panel");
   const hotZone = document.getElementById("sp-hot-zone");
-  const hint    = document.getElementById("sp-hint");
+  const hint = document.getElementById("sp-hint");
   let hintTimer;
 
   // Öffnen/Schließen
@@ -474,28 +491,28 @@ function bindPanel() {
 
 // ── Slider helper ─────────────────────────────────────────────────
 function bindSlider(id, displayId, format, configKey) {
-  const el  = document.getElementById(id);
+  const el = document.getElementById(id);
   const disp = document.getElementById(displayId);
   el.addEventListener("input", () => {
     const v = parseFloat(el.value);
     CONFIG[configKey] = v;
-    disp.textContent  = format(v);
+    disp.textContent = format(v);
   });
 }
 
 function bindSliders() {
-  bindSlider("sp-count",     "sp-val-count",     v => Math.round(v),             "BUBBLE_COUNT");
-  bindSlider("sp-rmin",      "sp-val-rmin",      v => `${Math.round(v)} px`,     "RADIUS_MIN");
-  bindSlider("sp-rmax",      "sp-val-rmax",      v => `${Math.round(v)} px`,     "RADIUS_MAX");
-  bindSlider("sp-speed",     "sp-val-speed",     v => `${v.toFixed(1)}×`,         "SPEED_MULT");
-  bindSlider("sp-wobble",    "sp-val-wobble",    v => v.toFixed(2),              "WOBBLE_AMP");
-  bindSlider("sp-threshold", "sp-val-threshold", v => `${v.toFixed(1)}%`,        "_THRESHOLD_PCT"); // Proxy, s.u.
-  bindSlider("sp-push",      "sp-val-push",      v => `${Math.round(v)} px`,     "PUSH_FORCE");
-  bindSlider("sp-lerp",      "sp-val-lerp",      v => v.toFixed(2),              "LERP_SPEED");
-  bindSlider("sp-fade",      "sp-val-fade",      v => `${v.toFixed(1)}×`,         "FADE_INTENSITY");
-  bindSlider("sp-blur",      "sp-val-blur",      v => v.toFixed(2),              "BLUR_OPACITY_MAX");
-  bindSlider("sp-fill",      "sp-val-fill",      v => `${Math.round(v)}%`,       "_FILL_PCT"); // Proxy
-  bindSlider("sp-font",      "sp-val-font",      v => `${v.toFixed(2)}×`,         "FONT_SIZE_RATIO");
+  bindSlider("sp-count", "sp-val-count", v => Math.round(v), "BUBBLE_COUNT");
+  bindSlider("sp-rmin", "sp-val-rmin", v => `${Math.round(v)} px`, "RADIUS_MIN");
+  bindSlider("sp-rmax", "sp-val-rmax", v => `${Math.round(v)} px`, "RADIUS_MAX");
+  bindSlider("sp-speed", "sp-val-speed", v => `${v.toFixed(1)}×`, "SPEED_MULT");
+  bindSlider("sp-wobble", "sp-val-wobble", v => v.toFixed(2), "WOBBLE_AMP");
+  bindSlider("sp-threshold", "sp-val-threshold", v => `${v.toFixed(1)}%`, "_THRESHOLD_PCT"); // Proxy, s.u.
+  bindSlider("sp-push", "sp-val-push", v => `${Math.round(v)} px`, "PUSH_FORCE");
+  bindSlider("sp-lerp", "sp-val-lerp", v => v.toFixed(2), "LERP_SPEED");
+  bindSlider("sp-fade", "sp-val-fade", v => `${v.toFixed(1)}×`, "FADE_INTENSITY");
+  bindSlider("sp-blur", "sp-val-blur", v => v.toFixed(2), "BLUR_OPACITY_MAX");
+  bindSlider("sp-fill", "sp-val-fill", v => `${Math.round(v)}%`, "_FILL_PCT"); // Proxy
+  bindSlider("sp-font", "sp-val-font", v => `${v.toFixed(2)}×`, "FONT_SIZE_RATIO");
 
   // Proxy-Konversionen: Slider-Wert ≠ CONFIG-Wert
   document.getElementById("sp-threshold").addEventListener("input", (e) => {
@@ -510,7 +527,7 @@ function bindSliders() {
 function bindToggles() {
   document.querySelectorAll(".sp-toggle").forEach(el => {
     el.addEventListener("click", () => {
-      const on  = el.dataset.state !== "on";
+      const on = el.dataset.state !== "on";
       el.dataset.state = on ? "on" : "off";
       el.classList.toggle("on", on);
       CONFIG[el.dataset.key] = on;
@@ -566,30 +583,30 @@ function bindButtons() {
     Object.assign(CONFIG, DEFAULTS, { WORDS: [...DEFAULTS.WORDS] });
 
     // Slider zurücksetzen
-    document.getElementById("sp-count").value     = DEFAULTS.BUBBLE_COUNT;
+    document.getElementById("sp-count").value = DEFAULTS.BUBBLE_COUNT;
     document.getElementById("sp-val-count").textContent = DEFAULTS.BUBBLE_COUNT;
-    document.getElementById("sp-rmin").value      = DEFAULTS.RADIUS_MIN;
-    document.getElementById("sp-val-rmin").textContent  = `${DEFAULTS.RADIUS_MIN} px`;
-    document.getElementById("sp-rmax").value      = DEFAULTS.RADIUS_MAX;
-    document.getElementById("sp-val-rmax").textContent  = `${DEFAULTS.RADIUS_MAX} px`;
-    document.getElementById("sp-speed").value     = DEFAULTS.SPEED_MULT;
+    document.getElementById("sp-rmin").value = DEFAULTS.RADIUS_MIN;
+    document.getElementById("sp-val-rmin").textContent = `${DEFAULTS.RADIUS_MIN} px`;
+    document.getElementById("sp-rmax").value = DEFAULTS.RADIUS_MAX;
+    document.getElementById("sp-val-rmax").textContent = `${DEFAULTS.RADIUS_MAX} px`;
+    document.getElementById("sp-speed").value = DEFAULTS.SPEED_MULT;
     document.getElementById("sp-val-speed").textContent = `${DEFAULTS.SPEED_MULT.toFixed(1)}×`;
-    document.getElementById("sp-wobble").value    = DEFAULTS.WOBBLE_AMP;
+    document.getElementById("sp-wobble").value = DEFAULTS.WOBBLE_AMP;
     document.getElementById("sp-val-wobble").textContent = DEFAULTS.WOBBLE_AMP.toFixed(2);
     document.getElementById("sp-threshold").value = DEFAULTS.PROXIMITY_THRESHOLD * 100;
     document.getElementById("sp-val-threshold").textContent = `${(DEFAULTS.PROXIMITY_THRESHOLD * 100).toFixed(1)}%`;
-    document.getElementById("sp-push").value      = DEFAULTS.PUSH_FORCE;
-    document.getElementById("sp-val-push").textContent  = `${DEFAULTS.PUSH_FORCE} px`;
-    document.getElementById("sp-lerp").value      = DEFAULTS.LERP_SPEED;
-    document.getElementById("sp-val-lerp").textContent  = DEFAULTS.LERP_SPEED.toFixed(2);
-    document.getElementById("sp-fade").value      = DEFAULTS.FADE_INTENSITY;
-    document.getElementById("sp-val-fade").textContent  = `${DEFAULTS.FADE_INTENSITY.toFixed(1)}×`;
-    document.getElementById("sp-blur").value      = DEFAULTS.BLUR_OPACITY_MAX;
-    document.getElementById("sp-val-blur").textContent  = DEFAULTS.BLUR_OPACITY_MAX.toFixed(2);
-    document.getElementById("sp-fill").value      = DEFAULTS.FILL_OPACITY * 100;
-    document.getElementById("sp-val-fill").textContent  = `${Math.round(DEFAULTS.FILL_OPACITY * 100)}%`;
-    document.getElementById("sp-font").value      = DEFAULTS.FONT_SIZE_RATIO;
-    document.getElementById("sp-val-font").textContent  = `${DEFAULTS.FONT_SIZE_RATIO.toFixed(2)}×`;
+    document.getElementById("sp-push").value = DEFAULTS.PUSH_FORCE;
+    document.getElementById("sp-val-push").textContent = `${DEFAULTS.PUSH_FORCE} px`;
+    document.getElementById("sp-lerp").value = DEFAULTS.LERP_SPEED;
+    document.getElementById("sp-val-lerp").textContent = DEFAULTS.LERP_SPEED.toFixed(2);
+    document.getElementById("sp-fade").value = DEFAULTS.FADE_INTENSITY;
+    document.getElementById("sp-val-fade").textContent = `${DEFAULTS.FADE_INTENSITY.toFixed(1)}×`;
+    document.getElementById("sp-blur").value = DEFAULTS.BLUR_OPACITY_MAX;
+    document.getElementById("sp-val-blur").textContent = DEFAULTS.BLUR_OPACITY_MAX.toFixed(2);
+    document.getElementById("sp-fill").value = DEFAULTS.FILL_OPACITY * 100;
+    document.getElementById("sp-val-fill").textContent = `${Math.round(DEFAULTS.FILL_OPACITY * 100)}%`;
+    document.getElementById("sp-font").value = DEFAULTS.FONT_SIZE_RATIO;
+    document.getElementById("sp-val-font").textContent = `${DEFAULTS.FONT_SIZE_RATIO.toFixed(2)}×`;
 
     // Toggles zurücksetzen
     document.querySelectorAll(".sp-toggle").forEach(el => {

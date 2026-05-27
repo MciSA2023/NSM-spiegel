@@ -26,7 +26,7 @@ export const CONFIG = {
 
   // ── Darstellung ──────────────────────────────────────────
   BLUR_OPACITY_MAX: 0.40,  // Max. Kamera-Abdunklung (0 = keins, 1 = schwarz)
-  FILL_OPACITY: 0.40,  // Transparenz der Blasenfüllung (0–1)
+  FILL_OPACITY: 0.60,  // Transparenz der Blasenfüllung (0–1)
   FONT_SIZE_RATIO: 0.35,  // Schriftgröße relativ zum Radius
   SHADOW_ENABLED: true,
   CAMERA_ENABLED: true,
