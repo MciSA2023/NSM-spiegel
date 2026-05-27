@@ -6,7 +6,7 @@ const ctx = canvas.getContext('2d');
 
 // --- KONFIGURATION ---
 const WORDS = ["EGO", "GELD", "EIFERSUCH", "NEID", "STRESS", "GIER", "HASS", "LÜGEN", "FAULHEIT", "ARROGANZ"];
-const BUBBLE_COUNT = 300;
+const BUBBLE_COUNT = 700;
 // Ab welcher Gesichtsgröße (in % des Bildschirms) sollen Blasen reagieren?
 const PROXIMITY_THRESHOLD = 0.02; // 2% der Bildfläche
 // Wie stark sollen die Blasen nach außen gedrückt werden? (Pixel)
@@ -29,7 +29,7 @@ const GRADIENTS = [
 
 let faceDetector;
 let lastVideoTime = -1;
-let currentProximity = 0; // Wie nah ist die Person (0.0 bis 1.0+)
+let currentProximity = 0;
 
 // Passe Canvas an Fenstergröße an
 function resizeCanvas() {
@@ -76,7 +76,7 @@ class Bubble {
   }
 
   update(proximity) {
-    // 1. Normale, natürliche Bewegung nach oben
+
     this.naturalY -= this.speed;
     this.naturalX += Math.sin(this.wobble) * 0.5;
     this.wobble += 0.02;
