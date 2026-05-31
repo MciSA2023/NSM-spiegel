@@ -61,7 +61,7 @@ function injectHTML() {
 
         <div class="sp-control">
           <div class="sp-ctrl-header">
-            <span>Anzahl</span>
+            <span>Bubble Count recommended (150-1000)</span>
             <span id="sp-val-count">700</span>
           </div>
           <input type="range" id="sp-count" min="50" max="1500" step="10" value="700">
@@ -69,7 +69,7 @@ function injectHTML() {
 
         <div class="sp-control">
           <div class="sp-ctrl-header">
-            <span>Min. Radius</span>
+            <span>min. radius</span>
             <span id="sp-val-rmin">30 px</span>
           </div>
           <input type="range" id="sp-rmin" min="10" max="80" step="1" value="30">
@@ -77,7 +77,7 @@ function injectHTML() {
 
         <div class="sp-control">
           <div class="sp-ctrl-header">
-            <span>Max. Radius</span>
+            <span>max. radius</span>
             <span id="sp-val-rmax">70 px</span>
           </div>
           <input type="range" id="sp-rmax" min="20" max="160" step="1" value="70">
@@ -85,7 +85,7 @@ function injectHTML() {
 
         <div class="sp-control">
           <div class="sp-ctrl-header">
-            <span>Aufstiegsgeschwindigkeit</span>
+            <span>ascent speed</span>
             <span id="sp-val-speed">2.0×</span>
           </div>
           <input type="range" id="sp-speed" min="0.2" max="5.0" step="0.1" value="2.0">
@@ -93,7 +93,7 @@ function injectHTML() {
 
         <div class="sp-control">
           <div class="sp-ctrl-header">
-            <span>Taumelbewegung</span>
+            <span>wobble movement</span>
             <span id="sp-val-wobble">0.50</span>
           </div>
           <input type="range" id="sp-wobble" min="0" max="3" step="0.05" value="0.5">
@@ -106,7 +106,7 @@ function injectHTML() {
 
         <div class="sp-control">
           <div class="sp-ctrl-header">
-            <span>Auslöseschwelle</span>
+            <span>trigger threshold (Distance)</span>
             <span id="sp-val-threshold">2.0%</span>
           </div>
           <input type="range" id="sp-threshold" min="0.5" max="15" step="0.5" value="2">
@@ -114,7 +114,7 @@ function injectHTML() {
 
         <div class="sp-control">
           <div class="sp-ctrl-header">
-            <span>Druckkraft (Push)</span>
+            <span>Pushforce</span>
             <span id="sp-val-push">1500 px</span>
           </div>
           <input type="range" id="sp-push" min="200" max="4000" step="50" value="1500">
@@ -122,7 +122,7 @@ function injectHTML() {
 
         <div class="sp-control">
           <div class="sp-ctrl-header">
-            <span>Reaktionsgeschwindigkeit</span>
+            <span>reaction speed</span>
             <span id="sp-val-lerp">0.05</span>
           </div>
           <input type="range" id="sp-lerp" min="0.01" max="0.3" step="0.01" value="0.05">
@@ -130,7 +130,7 @@ function injectHTML() {
 
         <div class="sp-control">
           <div class="sp-ctrl-header">
-            <span>Verblassungsintensität</span>
+            <span>fade intensity</span>
             <span id="sp-val-fade">1.5×</span>
           </div>
           <input type="range" id="sp-fade" min="0.1" max="5" step="0.1" value="1.5">
@@ -143,7 +143,7 @@ function injectHTML() {
 
         <div class="sp-control">
           <div class="sp-ctrl-header">
-            <span>Kamera-Abdunklung</span>
+            <span>camera darkness</span>
             <span id="sp-val-blur">0.40</span>
           </div>
           <input type="range" id="sp-blur" min="0" max="1" step="0.01" value="0.40">
@@ -151,7 +151,7 @@ function injectHTML() {
 
         <div class="sp-control">
           <div class="sp-ctrl-header">
-            <span>Blasen-Deckkraft</span>
+            <span>bubble opacity</span>
             <span id="sp-val-fill">40%</span>
           </div>
           <input type="range" id="sp-fill" min="5" max="100" step="1" value="40">
@@ -159,22 +159,22 @@ function injectHTML() {
 
         <div class="sp-control">
           <div class="sp-ctrl-header">
-            <span>Schriftgröße</span>
+            <span>font size</span>
             <span id="sp-val-font">0.35×</span>
           </div>
           <input type="range" id="sp-font" min="0.1" max="0.7" step="0.01" value="0.35">
         </div>
 
         <div class="sp-toggle-row">
-          <span>Textschatten</span>
+          <span>font shadow</span>
           <div class="sp-toggle on" id="sp-tog-shadow" data-key="SHADOW_ENABLED"></div>
         </div>
         <div class="sp-toggle-row">
-          <span>Kamerabild anzeigen</span>
+          <span>camera image</span>
           <div class="sp-toggle on" id="sp-tog-camera" data-key="CAMERA_ENABLED"></div>
         </div>
         <div class="sp-toggle-row">
-          <span>Glanzeffekt</span>
+          <span>Gloss effect</span>
           <div class="sp-toggle on" id="sp-tog-gloss" data-key="GLOSS_ENABLED"></div>
         </div>
       </div>
@@ -190,19 +190,19 @@ function injectHTML() {
         <div class="sp-section-label">Wörter</div>
 
         <div class="sp-hint-text">
-          Vordefinierte Wörter (immer aktiv)
+          predefined words (immer aktiv)
         </div>
         <div class="sp-tags" id="sp-predefined-tags"></div>
 
         <div class="sp-hint-text" style="margin-top:14px">
-          Eigene Wörter hinzufügen (kommagetrennt)
+          custom words (comma-separated)
         </div>
         <textarea id="sp-extra-words"
-          placeholder="z.B. NEID, ZWEIFEL, SCHAM …"
+          placeholder="e.g., NEID, ZWEIFEL, SCHAM …"
           spellcheck="false"></textarea>
 
         <div class="sp-hint-text" style="margin-top:8px; color:rgba(255,255,255,0.2)">
-          Eigene Wörter werden zu den vordefinierten ergänzt, nicht ersetzt.
+          Custom words will be added to the predefined ones, not replaced.
         </div>
       </div>
 
