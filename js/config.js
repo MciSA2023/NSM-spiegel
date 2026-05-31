@@ -1,33 +1,58 @@
 // ═══════════════════════════════════════════════════════════════════
 //  config.js
 //  Zentrale Konfiguration – alle Werte hier ändern, nirgendwo sonst.
-//  Das CONFIG-Objekt ist das einzige "Live"-Objekt, das vom Settings-
-//  Panel zur Laufzeit mutiert wird.
 // ═══════════════════════════════════════════════════════════════════
 
-export const PREDEFINED_WORDS = [
+// ── Wortlisten pro Sprache (je rein in ihrer Sprache) ─────────────
+export const PREDEFINED_WORDS_DE = [
   "EGO", "GELD", "EIFERSUCHT", "NEID", "STRESS",
   "GIER", "HASS", "LÜGEN", "FAULHEIT", "ARROGANZ",
 ];
+
+export const PREDEFINED_WORDS_IT = [
+  "EGO", "DENARO", "GELOSIA", "INVIDIA", "STRESS",
+  "AVIDITÀ", "ODIO", "BUGIE", "PIGRIZIA", "ARROGANZA",
+];
+
+export const PREDEFINED_WORDS_EN = [
+  "EGO", "MONEY", "JEALOUSY", "ENVY", "STRESS",
+  "GREED", "HATE", "LIES", "LAZINESS", "ARROGANCE",
+];
+
+export const PREDEFINED_WORDS_ES = [
+  "EGO", "DINERO", "CELOS", "ENVIDIA", "ESTRÉS",
+  "AVARICIA", "ODIO", "MENTIRAS", "PEREZA", "ARROGANCIA",
+];
+
+// Standard beim Start: Deutsch
+export const PREDEFINED_WORDS = PREDEFINED_WORDS_DE;
+
+// Lookup-Map für das Settings-Panel
+export const WORDS_BY_LANG = {
+  de: PREDEFINED_WORDS_DE,
+  it: PREDEFINED_WORDS_IT,
+  en: PREDEFINED_WORDS_EN,
+  es: PREDEFINED_WORDS_ES,
+};
 
 export const CONFIG = {
   // ── Blasen ──────────────────────────────────────────────
   BUBBLE_COUNT: 300,
   RADIUS_MIN: 10,
   RADIUS_MAX: 100,
-  SPEED_MULT: 1.5,   // Multiplikator auf Basis-Speed
-  WOBBLE_AMP: 0.5,   // Amplitude der seitlichen Taumelbewegung
+  SPEED_MULT: 1.5,
+  WOBBLE_AMP: 0.5,
 
   // ── Gesichtserkennung / Nähe ─────────────────────────────
-  PROXIMITY_THRESHOLD: 0.02, // Gesichtsfläche in % des Frames → Reaktion
-  PUSH_FORCE: 500, // Pixel, die Blasen nach außen gedrückt werden
-  LERP_SPEED: 0.05, // Interpolationsgeschwindigkeit (0.01 = träge, 0.3 = schnell)
-  FADE_INTENSITY: 1.5,  // Wie schnell Blasen bei Nähe ausblenden
+  PROXIMITY_THRESHOLD: 0.02,
+  PUSH_FORCE: 500,
+  LERP_SPEED: 0.05,
+  FADE_INTENSITY: 1.5,
 
   // ── Darstellung ──────────────────────────────────────────
-  BLUR_OPACITY_MAX: 0.40,  // Max. Kamera-Abdunklung (0 = keins, 1 = schwarz)
-  FILL_OPACITY: 0.60,  // Transparenz der Blasenfüllung (0–1)
-  FONT_SIZE_RATIO: 0.35,  // Schriftgröße relativ zum Radius
+  BLUR_OPACITY_MAX: 0.40,
+  FILL_OPACITY: 0.60,
+  FONT_SIZE_RATIO: 0.35,
   SHADOW_ENABLED: true,
   CAMERA_ENABLED: true,
   GLOSS_ENABLED: true,
@@ -35,19 +60,17 @@ export const CONFIG = {
   // ── Farbthema ────────────────────────────────────────────
   ACTIVE_GRADIENT_SET: 0,
 
-  // ── Wörter ───────────────────────────────────────────────
-  // Wird zur Laufzeit mit PREDEFINED_WORDS initialisiert (siehe main.js).
-  // Zusätzliche Wörter werden via Settings-Panel ergänzt.
-  WORDS: [...PREDEFINED_WORDS],
+  // ── Sprache & Wörter ─────────────────────────────────────
+  ACTIVE_LANGUAGE: "de",
+  WORDS: [...PREDEFINED_WORDS_DE],
 };
 
-// Snapshot der Startwerte für den Reset-Button
 export const DEFAULTS = { ...CONFIG, WORDS: [...CONFIG.WORDS] };
 
 // ── Farbthemen-Presets ────────────────────────────────────────────
 export const GRADIENT_SETS = [
   {
-    name: "Spektrum",
+    name: "Spectrum",
     dot: "linear-gradient(135deg,#FF5F6D,#5B86E5)",
     gradients: [
       ["#FF5F6D", "#FFC371"], ["#36D1DC", "#5B86E5"], ["#FF4B2B", "#FF416C"],
@@ -57,7 +80,7 @@ export const GRADIENT_SETS = [
     ],
   },
   {
-    name: "Nacht",
+    name: "Night",
     dot: "linear-gradient(135deg,#1a1a2e,#6a4c93)",
     gradients: [
       ["#1a1a2e", "#16213e"], ["#0f3460", "#533483"], ["#6a4c93", "#1982c4"],
@@ -67,7 +90,7 @@ export const GRADIENT_SETS = [
     ],
   },
   {
-    name: "Feuer",
+    name: "Fire",
     dot: "linear-gradient(135deg,#ff4500,#ffd700)",
     gradients: [
       ["#ff4500", "#ff8c00"], ["#ff6b35", "#f7931e"], ["#c0392b", "#e74c3c"],
@@ -77,7 +100,7 @@ export const GRADIENT_SETS = [
     ],
   },
   {
-    name: "Ozean",
+    name: "Ocean",
     dot: "linear-gradient(135deg,#006994,#00c9c8)",
     gradients: [
       ["#006994", "#0099cc"], ["#00b4db", "#0083b0"], ["#1a6b8a", "#2dd4bf"],
@@ -87,7 +110,7 @@ export const GRADIENT_SETS = [
     ],
   },
   {
-    name: "Pastell",
+    name: "Pastel",
     dot: "linear-gradient(135deg,#fbc2eb,#a6c1ee)",
     gradients: [
       ["#fbc2eb", "#a6c1ee"], ["#ffecd2", "#fcb69f"], ["#a1c4fd", "#c2e9fb"],
