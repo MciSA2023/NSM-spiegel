@@ -24,8 +24,8 @@ export const PREDEFINED_WORDS_ES = [
   "AVARICIA", "ODIO", "MENTIRAS", "PEREZA", "ARROGANCIA",
 ];
 
-// Standard beim Start: Deutsch
-export const PREDEFINED_WORDS = PREDEFINED_WORDS_DE;
+// Standard beim Start: Englisch
+export const PREDEFINED_WORDS = PREDEFINED_WORDS_EN;
 
 // Lookup-Map für das Settings-Panel
 export const WORDS_BY_LANG = {
@@ -51,7 +51,7 @@ export const CONFIG = {
 
   // ── Darstellung ──────────────────────────────────────────
   BLUR_OPACITY_MAX: 0.40,
-  FILL_OPACITY: 0.60,
+  FILL_OPACITY: 0.75,
   FONT_SIZE_RATIO: 0.35,
   SHADOW_ENABLED: true,
   CAMERA_ENABLED: true,
@@ -61,8 +61,8 @@ export const CONFIG = {
   ACTIVE_GRADIENT_SET: 0,
 
   // ── Sprache & Wörter ─────────────────────────────────────
-  ACTIVE_LANGUAGE: "de",
-  WORDS: [...PREDEFINED_WORDS_DE],
+  ACTIVE_LANGUAGE: "en",
+  WORDS: [...PREDEFINED_WORDS_EN],
 };
 
 export const DEFAULTS = { ...CONFIG, WORDS: [...CONFIG.WORDS] };
