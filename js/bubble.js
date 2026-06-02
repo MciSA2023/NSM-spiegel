@@ -125,7 +125,7 @@ export class Bubble {
       cacheCtx.shadowBlur = 4;
     }
     cacheCtx.fillStyle = "#ffffff";
-    cacheCtx.font = `bold ${this.radius * FONT_SIZE_RATIO}px 'Syne', Arial`;
+    cacheCtx.font = `bold ${this.radius * FONT_SIZE_RATIO}px 'RobotoCondensed', Arial`;
     cacheCtx.textAlign = "center";
     cacheCtx.textBaseline = "middle";
     cacheCtx.fillText(this.word, center, center);

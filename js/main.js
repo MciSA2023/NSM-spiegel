@@ -5,23 +5,25 @@
 // ═══════════════════════════════════════════════════════════════════
 
 import { initSettingsPanel, panelEvents } from "./settings-panel.js";
-import { BubbleManager }                  from "./bubble-manager.js";
-import { FaceDetection }                  from "./face-detection.js";
-import { Camera }                         from "./camera.js";
-import { Renderer }                       from "./renderer.js";
+import { BubbleManager } from "./bubble-manager.js";
+import { FaceDetection } from "./face-detection.js";
+import { Camera } from "./camera.js";
+import { Renderer } from "./renderer.js";
 
 async function main() {
+  await document.fonts.ready;
+  console.log("[main] Schriftart 'RobotoCondensed' ist geladen.");
   // ── DOM-Elemente ──────────────────────────────────────────────
   const canvas = document.getElementById("output_canvas");
-  const video  = document.getElementById("webcam");
+  const video = document.getElementById("webcam");
 
   // ── Module initialisieren ─────────────────────────────────────
   initSettingsPanel();
 
   const bubbleManager = new BubbleManager(canvas);
   const faceDetection = new FaceDetection();
-  const camera        = new Camera(video);
-  const renderer      = new Renderer(canvas, video, bubbleManager, faceDetection);
+  const camera = new Camera(video);
+  const renderer = new Renderer(canvas, video, bubbleManager, faceDetection);
 
   // ── KI laden ──────────────────────────────────────────────────
   await faceDetection.init();
