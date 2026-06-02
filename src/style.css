@@ -5,7 +5,7 @@
 }
 
 @font-face {
-  font-family: 'RobotoCondensed';
+  font-family: 'Buble';
   src: url('/src/Roboto_Condensed/static/RobotoCondensed-Regular.ttf') format('truetype');
 }
 
@@ -15,7 +15,7 @@ html {
   height: 100%;
   overflow: hidden;
   background-color: #000;
-  font-family: 'RobotoCondensed', sans-serif;
+  font-family: 'Buble';
 }
 
 #webcam {
