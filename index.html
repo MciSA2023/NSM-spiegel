@@ -5,41 +5,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Spiegel-Exebition</title>
-  <style>
-    @font-face {
-      font-family: 'Buble';
-      src: url('/Roboto_Condensed/RobotoCondensed-VariableFont_wght.ttf') format('truetype');
-    }
+  <link rel="stylesheet" href="/src/style.css" />
 
-    *,
-    *::before,
-    *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      background: #000;
-      overflow: hidden;
-      cursor: none;
-    }
-
-    video {
-      display: none;
-    }
-
-    canvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-    }
-  </style>
 </head>
 
 <body>
+  <div id="intro_overlay" class="intro-overlay">
+    <h1>Step Forward</h1>
+    <p>Welcome to your journey<br>Step closer to the mirror and discover yourself.</p>
+  </div>
   <video id="webcam" autoplay playsinline muted></video>
   <canvas id="output_canvas"></canvas>
 

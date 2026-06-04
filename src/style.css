@@ -6,8 +6,9 @@
 
 @font-face {
   font-family: 'Buble';
-  src: url('/src/Roboto_Condensed/static/RobotoCondensed-Regular.ttf') format('truetype');
+  src: url('/Roboto_Condensed/RobotoCondensed-VariableFont_wght.ttf') format('truetype');
 }
+
 
 body,
 html {
@@ -27,4 +28,99 @@ html {
   width: 100vw;
   height: 100vh;
   display: block;
+}
+
+
+
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #000;
+  overflow: hidden;
+  cursor: none;
+}
+
+video {
+  display: none;
+}
+
+canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+}
+
+
+
+
+body {
+  background: #000;
+  overflow: hidden;
+  cursor: none;
+}
+
+video {
+  display: none;
+}
+
+canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+}
+
+/* Intro Overlay Styling */
+.intro-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.75);
+  /* Sanfte, dunkle Abdunklung */
+  z-index: 1000;
+  /* Liegt über dem Canvas (Blasen) */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #ffffff;
+  text-align: center;
+  opacity: 1;
+  /* Die Magie: Ein 2-Sekunden langer, weicher Übergang, wenn es verschwindet */
+  transition: opacity 2s ease-in-out;
+  pointer-events: none;
+  /* Blockiert keine Klicks auf Knöpfe darunter */
+}
+
+/* Diese Klasse wird per JavaScript nach 10 Sekunden hinzugefügt */
+.intro-overlay.hidden {
+  opacity: 0;
+}
+
+.intro-overlay h1 {
+  font-family: 'Buble', sans-serif;
+  font-size: 5rem;
+  margin-bottom: 1rem;
+  font-weight: bold;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+}
+
+.intro-overlay p {
+  font-family: 'Buble', sans-serif;
+  font-size: 2.2rem;
+  opacity: 0.8;
+  line-height: 1.4;
 }

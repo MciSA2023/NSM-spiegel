@@ -25,6 +25,20 @@ async function main() {
   const camera = new Camera(video);
   const renderer = new Renderer(canvas, video, bubbleManager, faceDetection);
 
+  // ── Intro Overlay Timer ─────────────────────────────────────────
+  const overlay = document.getElementById("intro_overlay");
+  if (overlay) {
+    // 10.000 Millisekunden = 10 Sekunden warten
+    setTimeout(() => {
+      // Startet die sanfte 2-Sekunden Fade-Out Animation
+      overlay.classList.add("hidden");
+
+      // Entfernt das Element nach weiteren 2 Sekunden (wenn es unsichtbar ist)
+      // komplett aus dem Arbeitsspeicher, um maximale Performance zu garantieren.
+      setTimeout(() => overlay.remove(), 2000);
+    }, 10000);
+  }
+
   // ── KI laden ──────────────────────────────────────────────────
   await faceDetection.init();
 
