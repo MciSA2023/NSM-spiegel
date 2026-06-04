@@ -25,18 +25,31 @@ async function main() {
   const camera = new Camera(video);
   const renderer = new Renderer(canvas, video, bubbleManager, faceDetection);
 
-  // ── Intro Overlay Timer ─────────────────────────────────────────
+  // ── Idle & Overlay Manager (Attract Mode) ───────────────────────
   const overlay = document.getElementById("intro_overlay");
-  if (overlay) {
-    // 10.000 Millisekunden = 10 Sekunden warten
-    setTimeout(() => {
-      // Startet die sanfte 2-Sekunden Fade-Out Animation
-      overlay.classList.add("hidden");
 
-      // Entfernt das Element nach weiteren 2 Sekunden (wenn es unsichtbar ist)
-      // komplett aus dem Arbeitsspeicher, um maximale Performance zu garantieren.
-      setTimeout(() => overlay.remove(), 2000);
-    }, 10000);
+  if (overlay) {
+    let idleSeconds = 0;
+    const IDLE_LIMIT = 5; // Nach 5 Sekunden ohne Gesicht kommt das Overlay
+
+    // Ein extrem sparsamer Timer, der nur 1x pro Sekunde tickt
+    setInterval(() => {
+      // Wir nutzen die geglättete Proximity aus deiner FaceDetection.
+      // Wenn der Wert fast bei 0 ist, werten wir das als "niemand da".
+      if (faceDetection.proximity < 0.01) {
+        idleSeconds++;
+      } else {
+        // Gesicht erkannt! Timer sofort auf 0 setzen...
+        idleSeconds = 0;
+        // ...und Overlay weich ausblenden (falls es noch da ist)
+        overlay.classList.add("hidden");
+      }
+
+      // Wenn das Limit erreicht ist, Overlay wieder weich einblenden
+      if (idleSeconds >= IDLE_LIMIT) {
+        overlay.classList.remove("hidden");
+      }
+    }, 1000); // 1000 Millisekunden = 1 Sekunde
   }
 
   // ── KI laden ──────────────────────────────────────────────────
