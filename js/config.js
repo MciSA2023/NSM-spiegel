@@ -10,7 +10,7 @@ export const PREDEFINED_WORDS_DE = [
 ];
 
 export const PREDEFINED_WORDS_IT = [
-  "EGO", "DENARO", "GELOSIA", "INVIDIA", "STRESS",
+  "EGO", "SOLDI", "GELOSIA", "INVIDIA", "STRESS",
   "AVIDITÀ", "ODIO", "BUGIE", "PIGRIZIA", "ARROGANZA",
 ];
 
