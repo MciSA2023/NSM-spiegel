@@ -1,28 +1,29 @@
 // ═══════════════════════════════════════════════════════════════════
 //  face-detection.js
+//  100% OFFLINE VERSION
 //  Kapselt die MediaPipe-Initialisierung und den Erkennungs-Loop.
 //  Gibt einen geglätteten "proximity"-Wert (0–1+) zurück,
 //  den der Renderer an die Blasen weitergibt.
 // ═══════════════════════════════════════════════════════════════════
 
+// 1. Lokaler Import der Engine (relativer Pfad vom js-Ordner zum assets-Ordner)
 import { FaceDetector, FilesetResolver }
-  from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3";
+  from "../assets/ai/vision_bundle.mjs";
 
-const MODEL_URL =
-  "https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite";
-const WASM_URL =
-  "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm";
+// 2. Lokale Pfade zum Modell und zum WASM-Ordner
+const MODEL_URL = "../assets/ai/blaze_face_short_range.tflite";
+const WASM_URL = "../assets/ai/wasm";
 
 // Glättungsgewichte (exponentielles Moving Average)
-const SMOOTH_FACE    = 0.2; // Neue Messung
-const SMOOTH_NO_FACE = 0.9; // Decay wenn kein Gesicht
+const SMOOTH_FACE = 0.2; // Wie schnell reagiert es auf ein Gesicht
+const SMOOTH_NO_FACE = 0.9; // Wie weich blendet es aus (Decay), wenn jemand weggeht
 
 export class FaceDetection {
   constructor() {
-    this._detector      = null;
+    this._detector = null;
     this._lastVideoTime = -1;
-    this.proximity      = 0; // geglätteter Wert, außen lesbar
-    this._ready         = false;
+    this.proximity = 0; // geglätteter Wert, von außen lesbar
+    this._ready = false;
   }
 
   get isReady() { return this._ready; }
@@ -31,15 +32,21 @@ export class FaceDetection {
 
   async init() {
     try {
+      // Nutzt den lokalen WASM-Ordner statt des Internets
       const vision = await FilesetResolver.forVisionTasks(WASM_URL);
+
       this._detector = await FaceDetector.createFromOptions(vision, {
-        baseOptions: { modelAssetPath: MODEL_URL, delegate: "GPU" },
+        baseOptions: {
+          modelAssetPath: MODEL_URL,
+          // WICHTIG FÜR DEN NUC: CPU nutzen, um Hardware-Fehler unter Linux zu vermeiden!
+          delegate: "CPU"
+        },
         runningMode: "VIDEO",
       });
       this._ready = true;
-      console.log("[FaceDetection] Initialisiert ✓");
+      console.log("[FaceDetection] Offline-KI Initialisiert ✓");
     } catch (err) {
-      console.error("[FaceDetection] Initialisierung fehlgeschlagen:", err);
+      console.error("[FaceDetection] Initialisierung fehlgeschlagen. Pfade prüfen!", err);
     }
   }
 
@@ -59,15 +66,17 @@ export class FaceDetection {
       const result = this._detector.detectForVideo(video, performance.now());
 
       if (result.detections.length > 0) {
-        const box      = result.detections[0].boundingBox;
+        const box = result.detections[0].boundingBox;
         const faceArea = (box.width * box.height) / (video.videoWidth * video.videoHeight);
-        // Exponential Moving Average: bevorzugt stabilen Wert
+
+        // Exponential Moving Average: bevorzugt stabilen Wert und reduziert "Zittern"
         this.proximity = this.proximity * (1 - SMOOTH_FACE) + faceArea * SMOOTH_FACE;
       } else {
-        this.proximity *= SMOOTH_NO_FACE; // Sanfter Decay
+        // Sanfter Decay, wenn das Gesicht aus dem Bild verschwindet
+        this.proximity *= SMOOTH_NO_FACE;
       }
     } catch (err) {
-      // Fehler einzelner Frames sind harmlos (z.B. während Initialisierung)
+      // Fehler einzelner Frames sind harmlos (z.B. während der allerersten Initialisierung)
       console.warn("[FaceDetection] Fehler bei detectForVideo:", err);
     }
   }
