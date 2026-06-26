@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════════════════════════════
 //  camera.js
 //  Kamera-Initialisierung: getUserMedia und Video-Element.
-//  Getrennt vom Renderer damit man den Stream leicht tauschen kann.
+//  Optimiert auf maximale Framerate und flüssige HD-Performance.
 // ═══════════════════════════════════════════════════════════════════
 
 export class Camera {
@@ -16,24 +16,39 @@ export class Camera {
   // ── Setup ─────────────────────────────────────────────────────
 
   /**
-   * Kamera starten.
+   * Startet die Kamera im optimalen Leistungsbereich (Full-HD mit hoher FPS).
    * @returns {Promise<void>}
    */
   async start() {
+    // 1080p ist der "Sweet Spot": Gestochen scharf auf dem Canvas,
+    // aber schont die CPU, damit die Blasen und die KI flüssig laufen.
+    const constraints = {
+      video: {
+        width: { ideal: 1920 },
+        height: { ideal: 1080 },
+        // Wir fordern explizit eine hohe Framerate an!
+        frameRate: { ideal: 30, max: 60 },
+        facingMode: "user"
+      },
+      audio: false
+    };
+
     try {
-      this._stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          width:      { ideal: 1080 },
-          height:     { ideal: 1920 },
-          facingMode: "user",
-        },
-      });
+      console.log("[Camera] Fordere optimierten HD-Stream an...");
+      this._stream = await navigator.mediaDevices.getUserMedia(constraints);
       this.video.srcObject = this._stream;
+      
+      // Verhindert Ruckeln: Sagt dem Browser, das Video so direkt wie möglich abzuspielen
+      this.video.setAttribute("playsinline", true);
+      this.video.muted = true; 
+
       await this.video.play();
-      console.log("[Camera] Stream aktiv ✓");
+      
+      const settings = this._stream.getVideoTracks()[0].getSettings();
+      console.log(`[Camera] Stream läuft flüssig: ${settings.width}x${settings.height} @ ${settings.frameRate || 30} FPS ✓`);
     } catch (err) {
-      console.error("[Camera] Kein Zugriff:", err);
-      throw err; // weitergeben damit main.js reagieren kann
+      console.error("[Camera] Fehler beim Starten des optimierten Streams:", err);
+      throw err;
     }
   }
 
@@ -46,7 +61,10 @@ export class Camera {
   }
 
   stop() {
-    this._stream?.getTracks().forEach(t => t.stop());
-    console.log("[Camera] Stream gestoppt");
+    if (this._stream) {
+      this._stream.getTracks().forEach(t => t.stop());
+      this._stream = null;
+      console.log("[Camera] Stream gestoppt");
+    }
   }
 }
